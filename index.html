@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+
+<body>
+    <button onclick='start()'>start</button>
+    <input type="text" id="input_title">
+    <input type="text" id="input_sub_title">
+    <div id="c"></div>
+    <div id="c2"></div>
+    <input type="file" id="imgFile">
+    <div id="display"></div>
+    <script src="js/lib/pixi.js/bin/pixi.min.js"></script>
+    <script src="js/lib/stats.js-master/build/stats.min.js"></script>
+    <script src="js/banner_creater.js"></script>
+    <script>
+   
+
+    var inputTitle = document.getElementById('input_title'),
+        inputSubTitle = document.getElementById('input_sub_title'),
+        fileInput = document.getElementById('imgFile'),
+        bCreater = new bannerCreater();
+
+
+    input_title.onblur = function() {
+        //console.log(this.value);
+        bCreater.changeTitle(this.value)
+    }
+
+    inputSubTitle.onblur = function() {
+        //console.log(this.value);
+        bCreater.changeSubTitle(this.value)
+    }
+
+
+    var bCreater = new bannerCreater();
+
+
+    function start() {      
+        bCreater.init('c', 'c2');
+    }
+
+    // console.log(PIXI.loader.resources);
+
+    fileInput.addEventListener('change', function(e) {
+        var file = fileInput.files[0];
+        var imageType = /image.*/;
+
+        if (file.type.match(imageType)) {
+            var reader = new FileReader();
+
+            reader.onload = function(e) {
+
+                delete(PIXI.loader.resources['actor']);
+
+                var loader = PIXI.loader;
+                loader.add('actor', reader.result);
+                loader.once('complete', function() {
+
+                    bCreater.loadedActor();
+                });
+                loader.load();
+            }
+            reader.readAsDataURL(file);
+        }
+
+    })
+
+
+
+    window.requestAnimFrame = (function() {
+        return window.requestAnimationFrame ||
+            window.webkitRequestAnimationFrame ||
+            window.mozRequestAnimationFrame ||
+            function(callback) {
+                window.setTimeout(callback, 1000 / 60);
+            };
+    })();
+
+    window.cancelRequestAnimFrame = (function() {
+        return window.cancelAnimationFrame ||
+            window.webkitCancelRequestAnimationFrame ||
+            window.mozCancelRequestAnimationFrame ||
+            window.oCancelRequestAnimationFrame ||
+            window.msCancelRequestAnimationFrame ||
+            clearTimeout
+    })();
+    </script>
+</body>
+
+</html>
