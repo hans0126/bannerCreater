@@ -7,24 +7,95 @@
 </head>
 
 <body>
-
-    <button onclick='start()'>starts</button>
+    <button onclick='start()'>start</button>   
+    <hr>
+    <button onclick='changeMode(0)'>mode banner</button>
+    <button onclick='changeMode(1)'>mode thumb</button>
+    <hr>
     <input type="text" id="input_title">
     <input type="text" id="input_sub_title">
+    <hr>
+    <select id="faction" onchange="changeFaction(this)">
+        <option value="">--</option>
+    </select>
     <div id="c"></div>
     <div id="c2"></div>
+    <hr>
+     <button onclick='getImg()'>getImg</button>
     <input type="file" id="imgFile">
-    <div id="display"></div>
+    <hr>
+    <img src="" id="img">
+    <img src="" id="img2">
     <script src="js/lib/pixi.js/bin/pixi.min.js"></script>
     <script src="js/lib/stats.js-master/build/stats.min.js"></script>
     <script src="js/banner_creater.js"></script>
     <script>
-   
+    var factions = [{
+        title: 'convergence.png',
+        color: '#768788'
+    }, {
+        title: 'circle-orboros.png',
+        color: '#888076'
+    }, {
+        title: 'cryx.png',
+        color: '#798876'
+    }, {
+        title: 'cygnar.png',
+        color: '#888876'
+    }, {
+        title: 'khador.png',
+        color: '#bfacac'
+    }, {
+        title: 'legion-of-everblight.png',
+        color: '#807688'
+    }, {
+        title: 'mercenaries.png',
+        color: '#888676'
+    }, {
+        title: 'minions.png',
+        color: '#7b8876'
+    }, {
+        title: 'skorne.png',
+        color: '#888476'
+    }, {
+        title: 'the-protectorate-of-menoth.png',
+        color: '#888176'
+    }, {
+        title: 'the-retribution-of-scyrah.png',
+        color: '#808c89'
+    }, {
+        title: 'trollbloods.png',
+        color: '#8b8a7b'
+    }]
 
     var inputTitle = document.getElementById('input_title'),
         inputSubTitle = document.getElementById('input_sub_title'),
         fileInput = document.getElementById('imgFile'),
+        img = document.getElementById('img'),
+        img2 = document.getElementById('img2'),
+        faction = document.getElementById('faction'),
         bCreater = new bannerCreater();
+
+    for (var i = 0; i < factions.length; i++) {
+        var o = document.createElement('option');
+        o.text = factions[i].title;
+        o.value = factions[i].title;
+        faction.options.add(o);
+    }
+
+    function changeFaction(_val) {
+        console.log(_val.selectedIndex);
+        if (_val.selectedIndex > 0) {
+            bCreater.changeFaction(_val.value, factions[_val.selectedIndex - 1].color);
+        }
+    }
+
+    function changeMode(mode) {
+        bCreater.selectMode(mode);
+    }
+
+    var editArea = document.getElementById('c'),
+        viewArea = document.getElementById('c2')
 
 
     input_title.onblur = function() {
@@ -41,8 +112,21 @@
     var bCreater = new bannerCreater();
 
 
-    function start() {      
-        bCreater.init('c', 'c2');
+    function start() {
+        bCreater.init(editArea, viewArea);
+    }
+
+    function getImg() {
+        var imgUrl = bCreater.exportImg();
+        //console.log(img);
+
+        if(bCreater.mode==0){
+            img.src = imgUrl;
+        }else{
+            img2.src = imgUrl;
+        }
+
+        
     }
 
     // console.log(PIXI.loader.resources);
@@ -90,7 +174,6 @@
             window.msCancelRequestAnimationFrame ||
             clearTimeout
     })();
-
     </script>
 </body>
 

@@ -1,10 +1,13 @@
 var loader = PIXI.loader;
-loader.add('actor', "72088_BloodweaverNightWitch_WEB.jpg");
-loader.add('logo', "circle-orboros.png");
-loader.add("satellite", "satellite.fnt");
-loader.add("crackhouse", "crackhouse.fnt");
+loader.add("satellite.fnt");
 loader.add("templar.fnt");
-
+loader.add("source/flag_pixi.json");
+/*
+loader.on('progress',function(loader, loadedResource){
+    console.log(loader);
+    console.log(loadedResource);
+})
+*/
 
 loader.load();
 
@@ -13,14 +16,18 @@ function bannerCreater() {
 
     var _self = this;
 
-    var editAreaRenderer,
+    _self.mode = 0
+
+    var mode = 0, //0: banner 1:thumb
+        editAreaRenderer,
         viewAreaRenderer,
         editAreaStage = new PIXI.Container(),
         viewAreaStage = new PIXI.Container(),
+        bannerGroup = new PIXI.Container(),
         editAreaWidth = 320,
         editAreaHeight = 320,
-        viewAreaWidth = 260,
-        viewAreaHeight = 60,
+        viewAreaWidth = 0,
+        viewAreaHeight = 0,
         focusArea = {
             x: 0,
             y: 0
@@ -30,47 +37,32 @@ function bannerCreater() {
         actor2 = new PIXI.Sprite(),
         unFocusArea = new PIXI.Graphics(),
         gradient = new PIXI.Sprite(),
-        gradientColor = ['#726232', 'transparent'],
+        gradientColor = ['#999999', 'transparent'],
         subTitle,
         title,
         logo = new PIXI.Sprite(),
         subTitleStyle = {
-            font: "12px Arial",
+            font: "9px Arial",
             fill: "white"
-        };
+        },
+        dropShadowFilter = new PIXI.filters.DropShadowFilter();
+   
 
-
-    /*
-
-      var text = new PIXI.Text("Bloodweaver Night Witch", style);
-
-
-            var _textObj = new PIXI.extras.BitmapText("AaBb", {
-                font: "30px Templar",
-                tint: 0xFFFFFF
-
-            });*/
-
-
-    focusArea.x = editAreaWidth / 2 - viewAreaWidth / 2
-    focusArea.y = editAreaHeight / 2 - viewAreaHeight / 2
-
-    unFocusArea.beginFill(0x333333);
-    unFocusArea.drawRect(0, 0, editAreaWidth, focusArea.y); //top
-    unFocusArea.drawRect(0, focusArea.y + viewAreaHeight, editAreaWidth, focusArea.y); //bottom
-    unFocusArea.drawRect(0, focusArea.y, focusArea.x, viewAreaHeight)
-    unFocusArea.drawRect(editAreaWidth - focusArea.x, focusArea.y, focusArea.x, viewAreaHeight);
-    unFocusArea.endFill();
-    unFocusArea.alpha = 0.8;
+    dropShadowFilter.color = 0x333333;
+    dropShadowFilter.alpha = 1;
+    dropShadowFilter.blur = 15;
+    dropShadowFilter.distance = 3;
 
 
     _self.init = function(_editArea, _viewArea) {
 
         editAreaRenderer = new PIXI.autoDetectRenderer(editAreaWidth, editAreaHeight);
-        document.getElementById(_editArea).appendChild(editAreaRenderer.view);
+        _editArea.appendChild(editAreaRenderer.view);
 
         viewAreaRenderer = new PIXI.autoDetectRenderer(viewAreaWidth, viewAreaHeight);
-        document.getElementById(_viewArea).appendChild(viewAreaRenderer.view);
+        _viewArea.appendChild(viewAreaRenderer.view);
+
+        _self.selectMode( _self.mode);
 
         editAreaStage.addChild(actor);
         editAreaStage.addChild(unFocusArea);
@@ -80,28 +72,42 @@ function bannerCreater() {
         subTitle.y = viewAreaHeight - subTitle.height - 3;
 
 
-        title = new PIXI.extras.BitmapText('Alexia', {
+       /* title = new PIXI.extras.BitmapText('Alexia', {
             font: "30px Templar",
             tint: 0xFFFFFF
-        })
+        })*/
+
+        title = new PIXI.Text('Alexia', {
+              font: "30px Arial",
+            fill: "white"
+        });
 
         title.x = 5;
         title.y = 10;
 
+        title.filters = [dropShadowFilter];
+
         gradient.texture = createGradient();
 
-        logo.texture = PIXI.loader.resources.logo.texture;
-        logo.alpha = 0.2;
+        gradient.rotation = -0.2;
+        gradient.x = -12;
+
+        logo.texture = new PIXI.Texture.fromFrame('convergence.png');
+        //logo.texture = PIXI.loader.resources.logo.texture;
+        logo.alpha = 0.4;
         logo.y = viewAreaHeight / 2 - logo.height / 2;
         logo.x = -20;
 
-        viewAreaStage.addChild(actor2);
-        viewAreaStage.addChild(gradient);
-        viewAreaStage.addChild(logo);
-        viewAreaStage.addChild(subTitle);
-        viewAreaStage.addChild(title);
 
-        _self.renew();
+        bannerGroup.addChild(gradient);
+        bannerGroup.addChild(logo);
+        bannerGroup.addChild(subTitle);
+        bannerGroup.addChild(title);
+
+        viewAreaStage.addChild(actor2);
+        viewAreaStage.addChild(bannerGroup);
+
+        renew();
     }
 
     _self.loadedActor = function() {
@@ -111,7 +117,7 @@ function bannerCreater() {
         actor2.x = -focusArea.x;
         actor2.y = -focusArea.y;
 
-        _self.renew();
+        renew();
         actor.interactive = true;
 
         actor.on('mousedown', onDragStart)
@@ -134,17 +140,66 @@ function bannerCreater() {
         viewAreaRenderer.render(viewAreaStage);
     }
 
-
-    _self.renew = function() {
-        editAreaRenderer.render(editAreaStage);
+    _self.exportImg = function() {
         viewAreaRenderer.render(viewAreaStage);
+        return viewAreaRenderer.view.toDataURL("image/png");
+    }
+
+    _self.changeFaction = function(_factionImg, _factionColor) {
+        logo.texture = new PIXI.Texture.fromFrame(_factionImg);
+        gradientColor[0] = _factionColor;
+        gradient.texture = createGradient();
+        viewAreaRenderer.render(viewAreaStage);
+    }
+
+    _self.selectMode = function(_mode) {
+         _self.mode = _mode;
+
+        if (_mode == 0) {
+            viewAreaWidth = 260;
+            viewAreaHeight = 60;
+            bannerGroup.visible = true;
+        } else {
+            viewAreaWidth = 120;
+            viewAreaHeight = 120;
+            bannerGroup.visible = false;
+        }
+
+        viewAreaRenderer.resize(viewAreaWidth, viewAreaHeight);
+
+        focusArea.x = editAreaWidth / 2 - viewAreaWidth / 2;
+        focusArea.y = editAreaHeight / 2 - viewAreaHeight / 2;
+
+
+        unFocusArea.clear();
+        unFocusArea.beginFill(0x333333);
+        unFocusArea.drawRect(0, 0, editAreaWidth, focusArea.y); //top
+        unFocusArea.drawRect(0, focusArea.y + viewAreaHeight, editAreaWidth, focusArea.y); //bottom
+        unFocusArea.drawRect(0, focusArea.y, focusArea.x, viewAreaHeight)
+
+        unFocusArea.drawRect(editAreaWidth - focusArea.x, focusArea.y, focusArea.x, viewAreaHeight);
+        unFocusArea.endFill();
+
+        unFocusArea.alpha = 0.7;
+
+        actor2.x =  -focusArea.x + actor.x;
+        actor2.y =  -focusArea.y + actor.y 
+
+        renew();
 
     }
 
 
 
-    //--------------------//
 
+
+
+    //--------------------//  
+
+    function renew() {
+        editAreaRenderer.render(editAreaStage);
+        viewAreaRenderer.render(viewAreaStage);
+    }
 
     function createGradient() {
 
@@ -157,7 +212,7 @@ function bannerCreater() {
             _gradient.addColorStop(0.5, gradientColor[0]);
             _gradient.addColorStop(1, gradientColor[1]);
             ctx.fillStyle = _gradient;
-            ctx.fillRect(0, 0, viewAreaWidth, viewAreaHeight * 2);
+            ctx.fillRect(0, 0, viewAreaWidth + 40, viewAreaHeight * 2);
         })
 
     }
