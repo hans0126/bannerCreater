@@ -11,7 +11,6 @@ loader.on('progress',function(loader, loadedResource){
 
 loader.load();
 
-
 function bannerCreater() {
 
     var _self = this;
@@ -55,9 +54,6 @@ function bannerCreater() {
         },
         dropShadowFilter = new PIXI.filters.DropShadowFilter();
 
-
-
-
     dropShadowFilter.color = 0x333333;
     dropShadowFilter.alpha = 1;
     dropShadowFilter.blur = 15;
@@ -78,9 +74,9 @@ function bannerCreater() {
         editAreaStage.addChild(unFocusArea);
 
         subTitle = new PIXI.Text('Alexia Ciannor & the Risen', subTitleStyle);
+        subTitle.filters=[dropShadowFilter];
         subTitle.x = 5;
         subTitle.y = viewAreaHeight - subTitle.height - 3;
-
 
         /* title = new PIXI.extras.BitmapText('Alexia', {
              font: "30px Templar",
@@ -99,8 +95,6 @@ function bannerCreater() {
             titleGroup.addChild(_titleChild);
 
         }
-
-
 
         titleGroup.y = 3;
         titleGroup.x = 5;
@@ -151,20 +145,13 @@ function bannerCreater() {
 
 
     _self.changeTitle = function(_text) {
-         _self.titleOption.text = _text;
+        _self.titleOption.text = _text;
         titleProcess();
         viewAreaRenderer.render(viewAreaStage);
     }
 
-    _self.changeTitleSize = function(_num) {
-
-        title.style = {
-            font: _num + "px " + _self.titleOption.fontFamily,
-            fill: _self.titleOption.color
-        }
-
-        _self.titleOption.fontSize = _num;
-        //  title.y = (viewAreaHeight / 2 - title.height / 2)-10;
+    _self.changeTitleMode = function(_num) {
+        titleProcess(_num);
         viewAreaRenderer.render(viewAreaStage);
     }
 
@@ -208,9 +195,8 @@ function bannerCreater() {
         unFocusArea.beginFill(0x333333);
         unFocusArea.drawRect(0, 0, editAreaWidth, focusArea.y); //top
         unFocusArea.drawRect(0, focusArea.y + viewAreaHeight, editAreaWidth, focusArea.y); //bottom
-        unFocusArea.drawRect(0, focusArea.y, focusArea.x, viewAreaHeight)
-
-        unFocusArea.drawRect(editAreaWidth - focusArea.x, focusArea.y, focusArea.x, viewAreaHeight);
+        unFocusArea.drawRect(0, focusArea.y, focusArea.x, viewAreaHeight); // left
+        unFocusArea.drawRect(editAreaWidth - focusArea.x, focusArea.y, focusArea.x, viewAreaHeight); //right
         unFocusArea.endFill();
 
         unFocusArea.alpha = 0.7;
@@ -224,42 +210,130 @@ function bannerCreater() {
 
     //--------------------//  
 
+    /**
+     * @param _mode  null:auto  0:2row1work 1:2row2word 2:1row2word
+     *
+     */
 
-    function titleProcess() {
+    function titleProcess(_mode) {
+
         var _t = _self.titleOption.text,
             _txt = ['', ''];
 
         _t = _t.split(' ');
 
-        for (var i = 0; i < _t.length; i++) {
-            if (i < 2) {
-                _txt[0] += _t[i] + " ";
+        if (_mode == undefined) { //auto
+
+            if (_t.length > 2) {
+                for (var i = 0; i < _t.length; i++) {
+                    if (i < 2) {
+                        _txt[0] += _t[i] + " ";
+                    } else {
+                        _txt[1] += _t[i] + " ";
+                    }
+                }
             } else {
-                _txt[1] += _t[i] + " ";
+                if (_t.length == 2) {
+                    var limit = false;
+                    for (var i = 0; i < _t.length; i++) {
+                        if (_t[i].length >= 7) {
+                            limit = true;
+                            break;
+                        }
+                    }
+
+                    if (limit) {
+                        for (var i = 0; i < _t.length; i++) {
+                            _txt[i] += _t[i];
+                        }
+                    } else {
+                        for (var i = 0; i < _t.length; i++) {
+                            _txt[0] += _t[i] + " ";
+                        }
+                    }
+
+                } else {
+
+                    for (var i = 0; i < _t.length; i++) {
+                        _txt[0] += _t[i] + " ";
+                    }
+                }
+
+            }
+
+            if (_txt[1] == '') {
+                titleDisplayMode(0, _txt);
+            } else {
+                titleDisplayMode(1, _txt);
+            }
+
+        } else {
+
+            switch (_mode) {
+                case 0:
+                    for (var i = 0; i < _t.length; i++) {
+                        if (i < 2) {
+                            _txt[i] += _t[i] + " ";
+                        }
+                    }
+
+                    titleDisplayMode(1, _txt);
+                    break;
+
+                case 1:
+                    for (var i = 0; i < _t.length; i++) {
+                        if (i < 2) {
+                            _txt[0] += _t[i] + " ";
+                        } else {
+                            _txt[1] += _t[i] + " ";
+                        }
+                    }
+
+                    titleDisplayMode(1, _txt);
+                    break;
+
+                case 2:
+
+                    for (var i = 0; i < _t.length; i++) {
+                        _txt[0] += _t[i] + " ";
+                    }
+
+                    titleDisplayMode(0, _txt);
+
+                    break;
             }
         }
+    }
+
+    // 0: 1row 1: 2row
+
+    function titleDisplayMode(_mode, _txt) {
 
         for (var i = 0; i < 2; i++) {
             titleGroup.getChildAt(i).text = _txt[i];
         }
 
-        if (_txt[1] == '') {
-            for (var i = 0; i < 2; i++) {
-                titleGroup.getChildAt(i).font = _self.titleOption.bigFontSize + "px " + _self.titleOption.fontFamily
-            }
+        switch (_mode) {
+            case 0:
+                for (var i = 0; i < 2; i++) {
+                    titleGroup.getChildAt(i).font = _self.titleOption.bigFontSize + "px " + _self.titleOption.fontFamily
+                }
+                titleGroup.getChildAt(0).y = 9;
+                break;
 
-            titleGroup.getChildAt(0).y = 9;
 
-        } else {
-            for (var i = 0; i < 2; i++) {
-                titleGroup.getChildAt(i).font = _self.titleOption.smallFontSize + "px " + _self.titleOption.fontFamily
-            }
-
-            titleGroup.getChildAt(1).y = titleGroup.getChildAt(0).height + 2;
-            titleGroup.getChildAt(1).x = titleGroup.getChildAt(0).width / 3
-             titleGroup.getChildAt(0).y = 0;
+            case 1:
+                for (var i = 0; i < 2; i++) {
+                    titleGroup.getChildAt(i).font = _self.titleOption.smallFontSize + "px " + _self.titleOption.fontFamily
+                }
+                titleGroup.getChildAt(1).y = titleGroup.getChildAt(0).height + 2;
+                titleGroup.getChildAt(1).x = titleGroup.getChildAt(0).width / 2;
+                titleGroup.getChildAt(0).y = 0;
+                break;
         }
+
     }
+
 
     function renew() {
         editAreaRenderer.render(editAreaStage);

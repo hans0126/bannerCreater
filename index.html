@@ -5,42 +5,41 @@
     <meta charset="UTF-8">
     <title>Document</title>
     <style>
-    
-    
+
     </style>
 </head>
 
 <body>
-    <div id="ff"></div>
-    <div id="primary">
-    <button onclick='start()'>start</button>   
-    <hr>
-    <button onclick='changeMode(0)'>mode banner</button>
-    <button onclick='changeMode(1)'>mode thumb</button> 
-    <hr>
-    <input type="text" id="input_title">
-    <input type="text" id="input_sub_title">
-    <hr>
-    <select id="faction" onchange="changeFaction(this)">
-        <option value="">--</option>
-    </select>
-     <hr>
-    <div id="c"></div>
-    <div id="c2"></div>
-    <hr>
-     <button onclick='getImg()'>getImg</button>
-    <input type="file" id="imgFile">
-    <hr>
-    <img src="" id="img">
-    <img src="" id="img2">
+    <button onclick='start()' id="startBtn">start</button>
+    <div id="primary" style="display:block">
+        <hr>
+        <button onclick='changeMode(0)'>mode banner</button>
+        <button onclick='changeMode(1)'>mode thumb</button>
+        <hr>
+        <button onclick='changeTitleMode(0)'>mode 1</button>
+        <button onclick='changeTitleMode(1)'>mode 2</button>
+        <button onclick='changeTitleMode(2)'>mode 3</button>
+        <hr>
+        <input type="text" id="input_title">
+        <input type="text" id="input_sub_title">
+        <hr>
+        <select id="faction" onchange="changeFaction(this)">
+            <option value="">--</option>
+        </select>
+        <hr>
+        <div id="c"></div>
+        <div id="c2"></div>
+        <hr>
+        <button onclick='getImg()'>getImg</button>
+        <input type="file" id="imgFile">
+        <hr>
+        <img src="" id="img">
+        <img src="" id="img2">
     </div>
     <script src="js/lib/pixi.js/bin/pixi.min.js"></script>
     <script src="js/lib/stats.js-master/build/stats.min.js"></script>
     <script src="js/banner_creater.js"></script>
     <script>
-
-  
-
     var factions = [{
         title: 'convergence.png',
         color: '#768788'
@@ -55,7 +54,7 @@
         color: '#888876'
     }, {
         title: 'khador.png',
-        color: '#bfacac'
+        color: '#aaaaaa'
     }, {
         title: 'legion-of-everblight.png',
         color: '#807688'
@@ -81,12 +80,19 @@
 
     var inputTitle = document.getElementById('input_title'),
         inputSubTitle = document.getElementById('input_sub_title'),
-      
+        primary = document.getElementById('primary'),
+        startBtn = document.getElementById('startBtn'),
         fileInput = document.getElementById('imgFile'),
         img = document.getElementById('img'),
         img2 = document.getElementById('img2'),
         faction = document.getElementById('faction'),
         bCreater = new bannerCreater();
+
+    function start() {
+        primary.style.display = "block";
+        startBtn.parentNode.removeChild(startBtn);
+        bCreater.init(editArea, viewArea);
+    }
 
     for (var i = 0; i < factions.length; i++) {
         var o = document.createElement('option');
@@ -94,6 +100,8 @@
         o.value = factions[i].title;
         faction.options.add(o);
     }
+
+   
 
     function changeFaction(_val) {
         console.log(_val.selectedIndex);
@@ -105,6 +113,12 @@
     function changeMode(mode) {
         bCreater.selectMode(mode);
     }
+
+    function changeTitleMode(mode) {
+        bCreater.changeTitleMode(mode);
+    }
+
+
 
     var editArea = document.getElementById('c'),
         viewArea = document.getElementById('c2')
@@ -120,26 +134,17 @@
         bCreater.changeSubTitle(this.value)
     }
 
-    function start() {
-        bCreater.init(editArea, viewArea);
 
-        /*fontSizeInput.change = function(){
-            console.log(this.value);
-        }*/
-
-    }
 
     function getImg() {
         var imgUrl = bCreater.exportImg();
         //console.log(img);
 
-        if(bCreater.mode==0){
+        if (bCreater.mode == 0) {
             img.src = imgUrl;
-        }else{
+        } else {
             img2.src = imgUrl;
         }
-
-        
     }
 
     // console.log(PIXI.loader.resources);
