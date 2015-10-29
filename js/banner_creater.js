@@ -1,6 +1,6 @@
 var loader = PIXI.loader;
-loader.add("satellite.fnt");
-loader.add("templar.fnt");
+loader.add("source/satellite.fnt");
+loader.add("source/templar.fnt");
 loader.add("source/flag_pixi.json");
 /*
 loader.on('progress',function(loader, loadedResource){
@@ -17,6 +17,14 @@ function bannerCreater() {
     var _self = this;
 
     _self.mode = 0
+
+    _self.titleOption = {
+        fontFamily: "Templar",
+        bigFontSize: 28,
+        smallFontSize: 20,
+        color: 0xFFFFFF,
+        text: 'Blessing'
+    }
 
     var mode = 0, //0: banner 1:thumb
         editAreaRenderer,
@@ -39,14 +47,16 @@ function bannerCreater() {
         gradient = new PIXI.Sprite(),
         gradientColor = ['#999999', 'transparent'],
         subTitle,
-        title,
+        titleGroup = new PIXI.Container(),
         logo = new PIXI.Sprite(),
         subTitleStyle = {
             font: "9px Arial",
             fill: "white"
         },
         dropShadowFilter = new PIXI.filters.DropShadowFilter();
-   
+
+
+
 
     dropShadowFilter.color = 0x333333;
     dropShadowFilter.alpha = 1;
@@ -61,8 +71,8 @@ function bannerCreater() {
 
         viewAreaRenderer = new PIXI.autoDetectRenderer(viewAreaWidth, viewAreaHeight);
         _viewArea.appendChild(viewAreaRenderer.view);
-
-        _self.selectMode( _self.mode);
+        viewAreaRenderer.roundPixels = true;
+        _self.selectMode(_self.mode);
 
         editAreaStage.addChild(actor);
         editAreaStage.addChild(unFocusArea);
@@ -72,20 +82,30 @@ function bannerCreater() {
         subTitle.y = viewAreaHeight - subTitle.height - 3;
 
 
-       /* title = new PIXI.extras.BitmapText('Alexia', {
-            font: "30px Templar",
-            tint: 0xFFFFFF
-        })*/
+        /* title = new PIXI.extras.BitmapText('Alexia', {
+             font: "30px Templar",
+             tint: 0xFFFFFF
+         })*/
 
-        title = new PIXI.Text('Alexia', {
-              font: "30px Arial",
-            fill: "white"
-        });
+        //max 2 line
 
-        title.x = 5;
-        title.y = 10;
+        for (i = 0; i < 2; i++) {
+            var _titleChild = new PIXI.extras.BitmapText('', {
+                font: "10px " + _self.titleOption.fontFamily,
+                tint: _self.titleOption.color
+            });
 
-        title.filters = [dropShadowFilter];
+            _titleChild.filters = [dropShadowFilter];
+            titleGroup.addChild(_titleChild);
+
+        }
+
+
+
+        titleGroup.y = 3;
+        titleGroup.x = 5;
+
+        titleProcess();
 
         gradient.texture = createGradient();
 
@@ -102,7 +122,7 @@ function bannerCreater() {
         bannerGroup.addChild(gradient);
         bannerGroup.addChild(logo);
         bannerGroup.addChild(subTitle);
-        bannerGroup.addChild(title);
+        bannerGroup.addChild(titleGroup);
 
         viewAreaStage.addChild(actor2);
         viewAreaStage.addChild(bannerGroup);
@@ -131,7 +151,20 @@ function bannerCreater() {
 
 
     _self.changeTitle = function(_text) {
-        title.text = _text;
+         _self.titleOption.text = _text;
+        titleProcess();
+        viewAreaRenderer.render(viewAreaStage);
+    }
+
+    _self.changeTitleSize = function(_num) {
+
+        title.style = {
+            font: _num + "px " + _self.titleOption.fontFamily,
+            fill: _self.titleOption.color
+        }
+
+        _self.titleOption.fontSize = _num;
+        //  title.y = (viewAreaHeight / 2 - title.height / 2)-10;
         viewAreaRenderer.render(viewAreaStage);
     }
 
@@ -153,7 +186,7 @@ function bannerCreater() {
     }
 
     _self.selectMode = function(_mode) {
-         _self.mode = _mode;
+        _self.mode = _mode;
 
         if (_mode == 0) {
             viewAreaWidth = 260;
@@ -182,19 +215,51 @@ function bannerCreater() {
 
         unFocusArea.alpha = 0.7;
 
-        actor2.x =  -focusArea.x + actor.x;
-        actor2.y =  -focusArea.y + actor.y 
+        actor2.x = -focusArea.x + actor.x;
+        actor2.y = -focusArea.y + actor.y
 
         renew();
 
     }
 
-
-
-
-
-
     //--------------------//  
+
+
+    function titleProcess() {
+        var _t = _self.titleOption.text,
+            _txt = ['', ''];
+
+        _t = _t.split(' ');
+
+        for (var i = 0; i < _t.length; i++) {
+            if (i < 2) {
+                _txt[0] += _t[i] + " ";
+            } else {
+                _txt[1] += _t[i] + " ";
+            }
+        }
+
+        for (var i = 0; i < 2; i++) {
+            titleGroup.getChildAt(i).text = _txt[i];
+        }
+
+        if (_txt[1] == '') {
+            for (var i = 0; i < 2; i++) {
+                titleGroup.getChildAt(i).font = _self.titleOption.bigFontSize + "px " + _self.titleOption.fontFamily
+            }
+
+            titleGroup.getChildAt(0).y = 9;
+
+        } else {
+            for (var i = 0; i < 2; i++) {
+                titleGroup.getChildAt(i).font = _self.titleOption.smallFontSize + "px " + _self.titleOption.fontFamily
+            }
+
+            titleGroup.getChildAt(1).y = titleGroup.getChildAt(0).height + 2;
+            titleGroup.getChildAt(1).x = titleGroup.getChildAt(0).width / 3
+             titleGroup.getChildAt(0).y = 0;
+        }
+    }
 
     function renew() {
         editAreaRenderer.render(editAreaStage);
