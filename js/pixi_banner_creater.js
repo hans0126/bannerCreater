@@ -210,6 +210,11 @@ function bannerCreater() {
 
     }
 
+    _self.close = function() {
+        editAreaRenderer.destroy();
+        viewAreaRenderer.destroy();
+    }
+
     //--------------------//  
 
     /**
