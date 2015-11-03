@@ -15,7 +15,10 @@ function bannerCreater() {
 
     var _self = this;
 
-    _self.mode = 0
+    _self.mode = 0; //0: banner 1:thumb
+
+    _self.titleMode;
+
 
     _self.titleOption = {
         fontFamily: "Templar",
@@ -25,8 +28,7 @@ function bannerCreater() {
         text: 'Blessing'
     }
 
-    var mode = 0, //0: banner 1:thumb
-        editAreaRenderer,
+    var editAreaRenderer,
         viewAreaRenderer,
         editAreaStage = new PIXI.Container(),
         viewAreaStage = new PIXI.Container(),
@@ -74,7 +76,7 @@ function bannerCreater() {
         editAreaStage.addChild(unFocusArea);
 
         subTitle = new PIXI.Text('Alexia Ciannor & the Risen', subTitleStyle);
-        subTitle.filters=[dropShadowFilter];
+        subTitle.filters = [dropShadowFilter];
         subTitle.x = 5;
         subTitle.y = viewAreaHeight - subTitle.height - 3;
 
@@ -223,7 +225,6 @@ function bannerCreater() {
         _t = _t.split(' ');
 
         if (_mode == undefined) { //auto
-
             if (_t.length > 2) {
                 for (var i = 0; i < _t.length; i++) {
                     if (i < 2) {
@@ -251,9 +252,7 @@ function bannerCreater() {
                             _txt[0] += _t[i] + " ";
                         }
                     }
-
                 } else {
-
                     for (var i = 0; i < _t.length; i++) {
                         _txt[0] += _t[i] + " ";
                     }
@@ -263,12 +262,14 @@ function bannerCreater() {
 
             if (_txt[1] == '') {
                 titleDisplayMode(0, _txt);
+                _self.titleMode = 0;
             } else {
                 titleDisplayMode(1, _txt);
+                _self.titleMode = 1;
             }
 
         } else {
-
+            _self.titleMode = _mode;
             switch (_mode) {
                 case 0:
                     for (var i = 0; i < _t.length; i++) {
@@ -276,7 +277,6 @@ function bannerCreater() {
                             _txt[i] += _t[i] + " ";
                         }
                     }
-
                     titleDisplayMode(1, _txt);
                     break;
 
@@ -288,18 +288,14 @@ function bannerCreater() {
                             _txt[1] += _t[i] + " ";
                         }
                     }
-
                     titleDisplayMode(1, _txt);
                     break;
 
                 case 2:
-
                     for (var i = 0; i < _t.length; i++) {
                         _txt[0] += _t[i] + " ";
                     }
-
                     titleDisplayMode(0, _txt);
-
                     break;
             }
         }

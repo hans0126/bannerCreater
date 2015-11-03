@@ -38,7 +38,7 @@
     </div>
     <script src="js/lib/pixi.js/bin/pixi.min.js"></script>
     <script src="js/lib/stats.js-master/build/stats.min.js"></script>
-    <script src="js/banner_creater.js"></script>
+    <script src="js/pixi_banner_creater.js"></script>
     <script>
     var factions = [{
         title: 'convergence.png',
@@ -112,10 +112,12 @@
 
     function changeMode(mode) {
         bCreater.selectMode(mode);
+
     }
 
     function changeTitleMode(mode) {
         bCreater.changeTitleMode(mode);
+         console.log(bCreater.titleMode);
     }
 
 
