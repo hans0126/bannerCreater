@@ -29,6 +29,7 @@ function bannerCreater() {
     var titleGroup = new PIXI.Container();
     var logo = new PIXI.Sprite();
     var dropShadowFilter = new PIXI.filters.DropShadowFilter();
+    var factionImg = 'convergence-of-cyriss.png';
 
     _self.mode = 0; //0: banner 1:thumb
     _self.titleMode = null;
@@ -49,6 +50,44 @@ function bannerCreater() {
     _self.selectMode = selectMode;
     _self.close = close;
     _self.loadedActor = loadedActor;
+    _self.setFaction = setFaction;
+    _self.factions = [{
+        title: 'convergence-of-cyriss.png',
+        color: '#768788'
+    }, {
+        title: 'circle-orboros.png',
+        color: '#888076'
+    }, {
+        title: 'cryx.png',
+        color: '#798876'
+    }, {
+        title: 'cygnar.png',
+        color: '#888876'
+    }, {
+        title: 'khador.png',
+        color: '#aaaaaa'
+    }, {
+        title: 'legion-of-everblight.png',
+        color: '#807688'
+    }, {
+        title: 'mercenaries.png',
+        color: '#888676'
+    }, {
+        title: 'minions.png',
+        color: '#7b8876'
+    }, {
+        title: 'skorne.png',
+        color: '#888476'
+    }, {
+        title: 'the-protectorate-of-menoth.png',
+        color: '#888176'
+    }, {
+        title: 'retribution-of-scyrah.png',
+        color: '#808c89'
+    }, {
+        title: 'trollbloods.png',
+        color: '#8b8a7b'
+    }];
 
     dropShadowFilter.color = 0x333333;
     dropShadowFilter.alpha = 1;
@@ -103,7 +142,7 @@ function bannerCreater() {
         gradient.rotation = -0.2;
         gradient.x = -12;
 
-        logo.texture = new PIXI.Texture.fromFrame('convergence.png');
+        logo.texture = new PIXI.Texture.fromFrame(factionImg);
         //logo.texture = PIXI.loader.resources.logo.texture;
         logo.alpha = 0.4;
         logo.y = viewAreaHeight / 2 - logo.height / 2;
@@ -388,6 +427,16 @@ function bannerCreater() {
     function animate() {
         animeRequest = requestAnimationFrame(animate);
         editAreaRenderer.render(editAreaStage);
+    }
+
+    function setFaction(_faction) {
+        for (var i = 0; i < _self.factions.length; i++) {
+            if (_self.factions[i].title == _faction + ".png") {
+                gradientColor[0] = _self.factions[i].color;
+                factionImg = _self.factions[i].title;
+                break;
+            }
+        }
     }
 }
 
