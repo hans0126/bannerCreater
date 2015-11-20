@@ -9,8 +9,7 @@
     </style>
 </head>
 
-<body>
-    <button onclick='start()' id="startBtn">start</button>
+<body>   
     <div id="primary" style="display:block">
         <hr>
         <button onclick='changeMode(0)'>mode banner</button>
@@ -40,6 +39,15 @@
     <script src="js/lib/stats.js-master/build/stats.min.js"></script>
     <script src="js/pixi_banner_creater.js"></script>
     <script>
+    var loader = PIXI.loader;
+    loader.add("source/satellite.fnt");
+    loader.add("source/templar.fnt");
+    loader.add("source/flag_pixi.json"); 
+
+    PIXI.loader.once('complete', onLoadedCallback);
+
+    loader.load();
+
     var factions = [{
         title: 'convergence.png',
         color: '#768788'
@@ -88,9 +96,7 @@
         faction = document.getElementById('faction'),
         bCreater = new bannerCreater();
 
-    function start() {
-        primary.style.display = "block";
-        startBtn.parentNode.removeChild(startBtn);
+    function onLoadedCallback() {       
         bCreater.init(editArea, viewArea);
     }
 
@@ -101,7 +107,7 @@
         faction.options.add(o);
     }
 
-   
+
 
     function changeFaction(_val) {
         console.log(_val.selectedIndex);
@@ -117,7 +123,7 @@
 
     function changeTitleMode(mode) {
         bCreater.changeTitleMode(mode);
-         console.log(bCreater.titleMode);
+        console.log(bCreater.titleMode);
     }
 
 
